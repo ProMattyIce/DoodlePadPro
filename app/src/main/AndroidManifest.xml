@@ -18,6 +18,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <provider
+            android:name="mrh5493.edu.psu.database.DoodleProvider"
+            android:authorities="mrh5493.edu.psu.doodlepadpro"
+            android:enabled="true"
+            android:exported="false" />
+
     </application>
 
 </manifest>
