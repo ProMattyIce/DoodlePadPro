@@ -19,6 +19,9 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".draw">
+        </activity>
+
         <provider
             android:name="mrh5493.edu.psu.database.DoodleProvider"
             android:authorities="mrh5493.edu.psu.doodlepadpro"
