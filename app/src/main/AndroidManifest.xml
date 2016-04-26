@@ -19,15 +19,16 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".draw">
-        </activity>
-
         <provider
             android:name="mrh5493.edu.psu.database.DoodleProvider"
             android:authorities="mrh5493.edu.psu.doodlepadpro"
             android:enabled="true"
             android:exported="false" />
 
+        <activity
+            android:name=".Drawing"
+            android:label="@string/title_activity_drawing"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

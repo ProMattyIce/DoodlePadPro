@@ -3,7 +3,6 @@ package mrh5493.edu.psu.doodlepadpro;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -20,15 +19,14 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Add Image", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
 
-                Intent intent = new Intent(MainActivity.this, draw.class);
+                // Go to Drawing Screen here
+                Intent intent = new Intent(MainActivity.this, Drawing.class);
                 startActivity(intent);
-
             }
         });
 
