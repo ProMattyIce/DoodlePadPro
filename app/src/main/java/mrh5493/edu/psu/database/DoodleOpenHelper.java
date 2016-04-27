@@ -7,13 +7,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DoodleOpenHelper extends SQLiteOpenHelper {
 
-    private static DoodleOpenHelper sInstance;
+    private static DoodleOpenHelper Instance;
 
     public static synchronized DoodleOpenHelper getInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new DoodleOpenHelper(context.getApplicationContext());
-        }
-        return sInstance;
+        if (Instance == null)
+            Instance = new DoodleOpenHelper(context.getApplicationContext());
+        return Instance;
     }
 
     private DoodleOpenHelper(Context context) {
@@ -23,11 +22,11 @@ public class DoodleOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(DoodleContract.DoodleTable.CREATE_TABLE);
-
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
     }
+
 }

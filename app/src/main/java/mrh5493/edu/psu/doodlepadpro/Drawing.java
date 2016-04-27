@@ -1,11 +1,13 @@
 package mrh5493.edu.psu.doodlepadpro;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +19,9 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
+
+import mrh5493.edu.psu.database.DoodleContentProvider;
+import mrh5493.edu.psu.database.DoodleContract;
 
 public class Drawing extends AppCompatActivity {
 
@@ -79,6 +84,15 @@ public class Drawing extends AppCompatActivity {
 
             // Use the compress method on the BitMap object to write image to the OutputStream
             bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+
+            //Save to Database
+            ContentValues values = new ContentValues();
+            values.put(DoodleContract.DoodleTable.DOODLETITLE, "TEST");
+            values.put(DoodleContract.DoodleTable.DOODLEDESCRIPTION, "TEST");
+            values.put(DoodleContract.DoodleTable.DOODLEFILEPATH, mypath.getAbsolutePath());
+
+            Uri uri = getContentResolver().insert(DoodleContentProvider.CONTENT_URI, values);
+
             fos.close();
         } catch (Exception e) {
             e.printStackTrace();

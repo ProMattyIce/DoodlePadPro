@@ -20,15 +20,15 @@
         </activity>
 
         <provider
-            android:name="mrh5493.edu.psu.database.DoodleProvider"
-            android:authorities="mrh5493.edu.psu.doodlepadpro"
+            android:name="mrh5493.edu.psu.database.DoodleContentProvider"
+            android:authorities="mrh5493.edu.psu"
             android:enabled="true"
             android:exported="false" />
 
         <activity
             android:name=".Drawing"
             android:label="@string/title_activity_drawing"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>
