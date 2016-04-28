@@ -3,19 +3,22 @@ package mrh5493.edu.psu.doodlepadpro;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,6 +28,10 @@ import mrh5493.edu.psu.database.DoodleContract;
 
 public class Drawing extends AppCompatActivity {
 
+    String Title;
+    String Description;
+    Boolean save = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,6 +39,9 @@ public class Drawing extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Intent intent = getIntent();
+        Title = intent.getStringExtra("title");
+        Description = intent.getStringExtra("desc");
     }
 
     @Override
@@ -47,13 +57,6 @@ public class Drawing extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.drawing_save) {
             //Save Layout Here
-
-            //See if can First
-            if (!isExternalStorageWritable()) {
-                Toast.makeText(this, "Can't write to ExternalStorage", Toast.LENGTH_SHORT).show();
-                return true;
-            }
-
             View save = findViewById(R.id.drawingSave);
             assert save != null;
             Bitmap bitmap = Bitmap.createBitmap(save.getWidth(), save.getHeight(), Bitmap.Config.ARGB_8888);
@@ -64,48 +67,71 @@ public class Drawing extends AppCompatActivity {
             else
                 canvas.drawColor(Color.WHITE);
             save.draw(canvas);
-            saveToInternalSorage(bitmap);
-
+            new saveImageAsynceTask().execute(bitmap);
+            // done
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private class saveImageAsynceTask extends AsyncTask<Bitmap, Void, Boolean> {
 
-    private String saveToInternalSorage(Bitmap bitmapImage) {
-        ContextWrapper cw = new ContextWrapper(getApplicationContext());
-        File directory = cw.getDir("Doodles", Context.MODE_PRIVATE);
-        File mypath = new File(directory, "profile.jpg");
+        @Override
+        protected Boolean doInBackground(Bitmap... params) {
 
-        FileOutputStream fos = null;
-        try {
-            // fos = openFileOutput(filename, Context.MODE_PRIVATE);
+            //See if can First
+            String state = Environment.getExternalStorageState();
+            if (!Environment.MEDIA_MOUNTED.equals(state)) {
+                return false;
+            }
 
-            fos = new FileOutputStream(mypath);
+            Bitmap bitmapImage = params[0];
 
-            // Use the compress method on the BitMap object to write image to the OutputStream
-            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            ContextWrapper cw = new ContextWrapper(getApplicationContext());
+            File directory = cw.getDir("Doodles", Context.MODE_PRIVATE);
+            File mypath = new File(directory, Title + ".jpg");
+            FileOutputStream fos = null;
+            try {
+                // fos = openFileOutput(filename, Context.MODE_PRIVATE);
 
-            //Save to Database
-            ContentValues values = new ContentValues();
-            values.put(DoodleContract.DoodleTable.DOODLETITLE, "TEST");
-            values.put(DoodleContract.DoodleTable.DOODLEDESCRIPTION, "TEST");
-            values.put(DoodleContract.DoodleTable.DOODLEFILEPATH, mypath.getAbsolutePath());
+                fos = new FileOutputStream(mypath);
 
-            Uri uri = getContentResolver().insert(DoodleContentProvider.CONTENT_URI, values);
+                // Use the compress method on the BitMap object to write image to the OutputStream
+                bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
 
-            fos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return directory.getAbsolutePath();
-    }
+                if (!save) {
+                    //Save to Database
+                    ContentValues values = new ContentValues();
+                    values.put(DoodleContract.DoodleTable.DOODLETITLE, Title);
+                    values.put(DoodleContract.DoodleTable.DOODLEDESCRIPTION, Description);
+                    values.put(DoodleContract.DoodleTable.DOODLEFILEPATH, mypath.getAbsolutePath());
 
-    /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
+                    Uri uri = getContentResolver().insert(DoodleContentProvider.CONTENT_URI, values);
+                    save = true;
+                }
+
+                fos.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return true;
+            }
             return true;
         }
-        return false;
+
+        @Override
+        protected void onPostExecute(Boolean results) {
+            super.onPostExecute(results);
+            CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.drawingCoordinatorLayout);
+            Snackbar snackbar = null;
+            assert coordinatorLayout != null;
+
+            if (results)
+                snackbar = Snackbar.make(coordinatorLayout, "Saved", Snackbar.LENGTH_LONG);
+
+            else
+                snackbar = Snackbar.make(coordinatorLayout, "Can't Save", Snackbar.LENGTH_LONG);
+
+            snackbar.show();
+
+        }
     }
 }

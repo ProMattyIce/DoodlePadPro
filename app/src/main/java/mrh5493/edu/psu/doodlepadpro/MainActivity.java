@@ -2,8 +2,6 @@ package mrh5493.edu.psu.doodlepadpro;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -21,9 +19,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.lang.ref.WeakReference;
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import mrh5493.edu.psu.database.DoodleContentProvider;
 import mrh5493.edu.psu.database.DoodleContract;
@@ -32,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
     ArrayList<DoodleDEF> adapterResults;
-    HashMap<String, Bitmap> saveResults;
+    ImageAdapter imageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,30 +46,54 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 // Go to Drawing Screen here
-                Intent intent = new Intent(MainActivity.this, Drawing.class);
+                Intent intent = new Intent(MainActivity.this, AddImage.class);
                 startActivity(intent);
             }
         });
 
 
         adapterResults = new ArrayList<>();
-        saveResults = new HashMap<>();
 
         recyclerView = (RecyclerView) findViewById(R.id.ImagesRecyclerView);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
-        ImageAdapter imageAdapter = new ImageAdapter(adapterResults);
+        imageAdapter = new ImageAdapter(adapterResults);
         recyclerView.setAdapter(imageAdapter);
 
-        new imageAsyncTask().execute();
+        if (adapterResults.size() == 0)
+            new imageAsyncTask().execute();
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("adapter", adapterResults);
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        saveResults.clear();
-        new imageAsyncTask().execute();
+
+        if (adapterResults.size() == 0) {
+            new imageAsyncTask().execute();
+            Log.v("RESTORED", "RAN");
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            adapterResults = savedInstanceState.getParcelableArrayList("adapter");
+            imageAdapter = new ImageAdapter(adapterResults);
+            recyclerView.setAdapter(imageAdapter);
+            Log.v("RESTORED", "onRestoreInstanceState");
+            Log.v("SIZE", String.valueOf(adapterResults.size()));
+
+        }
     }
 
     @Override
@@ -116,11 +138,14 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(ImageViewHolder holder, int position) {
 
             holder.Title.setText(adapterResults.get(position).getTitle());
+            Log.v("IMAGE", adapterResults.get(position).getImage());
+            Picasso.with(holder.Doodle.getContext()).load("file:" + adapterResults.get(position).getImage()).fit().into(holder.Doodle);
 
-            if (saveResults.containsKey(adapterResults.get(position).getImage()))
-                holder.Doodle.setImageBitmap(saveResults.get(adapterResults.get(position).getImage()));
-            else
-                new BitmapWorkerTask(holder.Doodle).execute(adapterResults.get(position).getImage());
+
+//            if (saveResults.containsKey(adapterResults.get(position).getImage()))
+//                holder.Doodle.setImageBitmap(saveResults.get(adapterResults.get(position).getImage()));
+//            else
+//                new BitmapWorkerTask(holder.Doodle).execute(adapterResults.get(position).getImage());
 
         }
 
@@ -146,77 +171,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class BitmapWorkerTask extends AsyncTask<String, Void, Bitmap> {
-        private final WeakReference<ImageView> imageViewReference;
-
-        public BitmapWorkerTask(ImageView imageView) {
-            // Use a WeakReference to ensure the ImageView can be garbage collected
-            imageViewReference = new WeakReference<ImageView>(imageView);
-        }
-
-        // Decode image in background.
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            String data = params[0];
-            Bitmap bitmap = BitmapFactory.decodeFile(data);
-
-            saveResults.put(data, bitmap);
-
-            return bitmap;
-        }
-
-        // Once complete, see if ImageView is still around and set bitmap.
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if (imageViewReference != null && bitmap != null) {
-                final ImageView imageView = imageViewReference.get();
-                if (imageView != null) {
-                    imageView.setImageBitmap(bitmap);
-                }
-            }
-        }
-    }
-
-    private class DoodleDEF {
-        private String Title;
-        private String Description;
-        private String Image;
-
-        public DoodleDEF() {
-
-        }
-
-        public DoodleDEF(String title, String description, String image) {
-            Title = title;
-            Description = description;
-            Image = image;
-        }
-
-        public String getTitle() {
-            return Title;
-        }
-
-        public void setTitle(String title) {
-            Title = title;
-        }
-
-        public String getDescription() {
-            return Description;
-        }
-
-        public void setDescription(String description) {
-            Description = description;
-        }
-
-        public String getImage() {
-            return Image;
-        }
-
-        public void setImage(String image) {
-            Image = image;
-        }
-    }
-
     private class imageAsyncTask extends AsyncTask<Void, Void, ArrayList<DoodleDEF>> {
 
         @Override
@@ -231,25 +185,27 @@ public class MainActivity extends AppCompatActivity {
             while (!query.isAfterLast()) {
                 DoodleDEF temp = new DoodleDEF();
 
+                Log.v("QUERY", query.getString(0));
                 temp.setTitle(query.getString(0));
-                Log.v("GET", query.getColumnName(2));
                 temp.setImage(query.getString(2));
 
                 retVal.add(temp);
                 query.moveToNext();
             }
 
+            query.close();
             return retVal;
         }
-
 
         @Override
         protected void onPostExecute(ArrayList<DoodleDEF> doodleDEFs) {
             super.onPostExecute(doodleDEFs);
 
+            adapterResults = doodleDEFs;
             ImageAdapter adpater = new ImageAdapter(doodleDEFs);
             recyclerView.setAdapter(adpater);
 
         }
+
     }
 }
