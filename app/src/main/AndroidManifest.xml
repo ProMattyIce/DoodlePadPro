@@ -51,6 +51,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="mrh5493.edu.psu.doodlepadpro.MainActivity" />
         </activity>
+        <activity
+            android:name=".Preference"
+            android:theme="@style/AppTheme" />
     </application>
 
 </manifest>

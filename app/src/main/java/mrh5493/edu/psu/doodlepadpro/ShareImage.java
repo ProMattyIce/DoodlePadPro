@@ -8,7 +8,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -35,7 +34,7 @@ public class ShareImage extends AppCompatActivity {
         Desciption.setText(intent.getStringExtra("Desc"));
 
         final File imgFile = new File(intent.getStringExtra("Image"));
-        Toast.makeText(this, imgFile.getAbsolutePath() + " ", Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, imgFile.getAbsolutePath() + " ", Toast.LENGTH_LONG).show();
         Picasso.with(this).load(imgFile.getAbsoluteFile()).fit().into(Doodle);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);

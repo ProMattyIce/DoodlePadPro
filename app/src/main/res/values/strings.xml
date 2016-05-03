@@ -5,4 +5,14 @@
     <string name="title_activity_add_image">AddImage</string>
     <string name="title_activity_share_image">ShareImage</string>
 
+    <string name="start_new">New</string>
+    <string name="brush">Brush</string>
+    <string name="erase">Erase</string>
+    <string name="save">Save</string>
+    <string name="paint">Paint</string>
+
+    <string name="sml">Small</string>
+    <string name="med">Medium</string>
+    <string name="lrg">Large</string>
+
 </resources>
