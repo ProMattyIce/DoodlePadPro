@@ -2,10 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="mrh5493.edu.psu.doodlepadpro">
 
-
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -38,6 +36,15 @@
             android:name=".AddImage"
             android:label="@string/title_activity_add_image"
             android:noHistory="true"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="mrh5493.edu.psu.doodlepadpro.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ShareImage"
+            android:label="@string/title_activity_share_image"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

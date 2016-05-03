@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class AddImage extends AppCompatActivity {
 
@@ -26,10 +27,13 @@ public class AddImage extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent(AddImage.this, Drawing.class);
-                intent.putExtra("title", title.getText().toString());
-                intent.putExtra("desc", descption.getText().toString());
-                startActivity(intent);
+                if (!title.getText().toString().equals("")) {
+                    Intent intent = new Intent(AddImage.this, Drawing.class);
+                    intent.putExtra("title", title.getText().toString());
+                    intent.putExtra("desc", descption.getText().toString());
+                    startActivity(intent);
+                } else
+                    Toast.makeText(AddImage.this, "Title can not be empty", Toast.LENGTH_SHORT).show();
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

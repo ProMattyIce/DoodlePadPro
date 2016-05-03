@@ -3,5 +3,6 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_drawing">Drawing</string>
     <string name="title_activity_add_image">AddImage</string>
+    <string name="title_activity_share_image">ShareImage</string>
 
 </resources>

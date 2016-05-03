@@ -42,7 +42,10 @@ public class Drawing extends AppCompatActivity {
         Intent intent = getIntent();
         Title = intent.getStringExtra("title");
         Description = intent.getStringExtra("desc");
+
+
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -57,6 +60,7 @@ public class Drawing extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.drawing_save) {
             //Save Layout Here
+
             View save = findViewById(R.id.drawingSave);
             assert save != null;
             Bitmap bitmap = Bitmap.createBitmap(save.getWidth(), save.getHeight(), Bitmap.Config.ARGB_8888);
@@ -73,6 +77,7 @@ public class Drawing extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
     private class saveImageAsynceTask extends AsyncTask<Bitmap, Void, Boolean> {
 
         @Override
@@ -87,8 +92,15 @@ public class Drawing extends AppCompatActivity {
             Bitmap bitmapImage = params[0];
 
             ContextWrapper cw = new ContextWrapper(getApplicationContext());
-            File directory = cw.getDir("Doodles", Context.MODE_PRIVATE);
+            File directory = cw.getDir("Doodles", Context.MODE_WORLD_READABLE);
             File mypath = new File(directory, Title + ".jpg");
+
+            if (!save) {
+                while (mypath.exists()) {
+                    int randomNum = (int) (Math.random() * Integer.MAX_VALUE);
+                    mypath = new File(directory, Title + randomNum + ".jpg");
+                }
+            }
             FileOutputStream fos = null;
             try {
                 // fos = openFileOutput(filename, Context.MODE_PRIVATE);

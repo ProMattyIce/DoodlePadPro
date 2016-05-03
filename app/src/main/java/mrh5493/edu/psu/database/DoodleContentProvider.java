@@ -19,9 +19,11 @@ public class DoodleContentProvider extends ContentProvider {
 
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     private static final int DOODLE = 1;
+    //private static final int DOODLE_ID = 2;
 
     static {
         uriMatcher.addURI(AUTHORITY, BASE_PATH, DOODLE);
+        //uriMatcher.addURI(AUTHORITY, BASE_PATH + "/#", DOODLE_ID);
     }
 
     @Override
@@ -93,7 +95,22 @@ public class DoodleContentProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+
+        int count;
+        SQLiteDatabase database = doodleOpenHelper.getWritableDatabase();
+
+        switch (uriMatcher.match(uri)) {
+            case DOODLE:
+                count = database.delete(DoodleContract.DoodleTable.TABLE_NAME,
+                        selection,
+                        selectionArgs);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknow URI " + uri);
+        }
+
+        return count;
     }
 
     @Override

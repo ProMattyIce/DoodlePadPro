@@ -5,6 +5,8 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,6 +24,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import mrh5493.edu.psu.database.DoodleContentProvider;
 import mrh5493.edu.psu.database.DoodleContract;
@@ -60,15 +63,14 @@ public class MainActivity extends AppCompatActivity {
         imageAdapter = new ImageAdapter(adapterResults);
         recyclerView.setAdapter(imageAdapter);
 
-        if (adapterResults.size() == 0)
-            new imageAsyncTask().execute();
+        new imageAsyncTask().execute();
 
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("adapter", adapterResults);
+        //outState.putParcelableArrayList("adapter", adapterResults);
 
     }
 
@@ -76,24 +78,25 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if (adapterResults.size() == 0) {
-            new imageAsyncTask().execute();
-            Log.v("RESTORED", "RAN");
-        }
+//        if (adapterResults.size() == 0) {
+//            new imageAsyncTask().execute();
+//            Log.v("RESTORED", "RAN");
+//        }
+        new imageAsyncTask().execute();
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            adapterResults = savedInstanceState.getParcelableArrayList("adapter");
-            imageAdapter = new ImageAdapter(adapterResults);
-            recyclerView.setAdapter(imageAdapter);
-            Log.v("RESTORED", "onRestoreInstanceState");
-            Log.v("SIZE", String.valueOf(adapterResults.size()));
-
-        }
+//        if (savedInstanceState != null) {
+//            adapterResults = savedInstanceState.getParcelableArrayList("adapter");
+//            imageAdapter = new ImageAdapter(adapterResults);
+//            recyclerView.setAdapter(imageAdapter);
+//            Log.v("RESTORED", "onRestoreInstanceState");
+//            Log.v("SIZE", String.valueOf(adapterResults.size()));
+//
+//        }
     }
 
     @Override
@@ -136,6 +139,21 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(ImageViewHolder holder, int position) {
+
+            final ImageViewHolder tholder = holder;
+            final int pos = position;
+            holder.CardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(tholder.CardView.getContext(), ShareImage.class);
+                    intent.putExtra("Image", adapterResults.get(pos).getImage());
+                    intent.putExtra("Title", adapterResults.get(pos).getTitle());
+                    intent.putExtra("Desc", adapterResults.get(pos).getDescription());
+                    Pair<View, String> Image = Pair.create((View) tholder.Doodle, "Image");
+                    ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(MainActivity.this, Image);
+                    startActivity(intent, options.toBundle());
+                }
+            });
 
             holder.Title.setText(adapterResults.get(position).getTitle());
             Log.v("IMAGE", adapterResults.get(position).getImage());
@@ -187,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Log.v("QUERY", query.getString(0));
                 temp.setTitle(query.getString(0));
+                temp.setDescription(query.getString(1));
                 temp.setImage(query.getString(2));
 
                 retVal.add(temp);
@@ -201,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(ArrayList<DoodleDEF> doodleDEFs) {
             super.onPostExecute(doodleDEFs);
 
+            Collections.reverse(doodleDEFs);
             adapterResults = doodleDEFs;
             ImageAdapter adpater = new ImageAdapter(doodleDEFs);
             recyclerView.setAdapter(adpater);
