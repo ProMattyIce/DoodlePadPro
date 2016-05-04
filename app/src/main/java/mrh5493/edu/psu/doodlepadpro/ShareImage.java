@@ -14,6 +14,7 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 
 import mrh5493.edu.psu.database.DoodleContentProvider;
+import mrh5493.edu.psu.database.DoodleContract;
 
 public class ShareImage extends AppCompatActivity {
 
@@ -41,7 +42,7 @@ public class ShareImage extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getContentResolver().delete(DoodleContentProvider.CONTENT_URI, "title=?", new String[]{intent.getStringExtra("Title")});
+                getContentResolver().delete(DoodleContentProvider.CONTENT_URI, DoodleContract.DoodleTable.DOODLEFILEPATH + "=?", new String[]{intent.getStringExtra("Image")});
                 finish();
 
             }
